@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace membres &amp; Connexion — AEPeS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pages.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="site-sync.js" defer></script>
+<script src="supabase-client.js" defer></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+<div class="thread" aria-hidden="true"><svg viewBox="0 0 400 14" preserveAspectRatio="none"><path d="M0,7 Q10,0 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#1F5390" stroke-width="1.4"/><path d="M0,7 Q10,14 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#8FB8E6" stroke-width="1.4"/></svg></div>
+<header>
+  <nav>
+    <a href="index.html" class="logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</a>
+    <div class="nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="apropos.html">À propos</a>
+      <a href="equipe.html">Équipe</a>
+      <a href="activites.html">Activités</a>
+      <a href="actualites.html">Actualités</a>
+      <a href="evenements.html">Événements</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="bibliotheque.html">AEPeS Library</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="connexion.html" class="btn btn-member" style="background:var(--indigo-900);color:white;border-color:var(--indigo-900);">Espace Membres</a>
+      <a href="adhesion.html" class="btn btn-ghost">Adhérer</a>
+      <a href="dons.html" class="btn btn-primary">Faire un don</a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section style="padding:80px 0 90px;background:var(--off-white);">
+  <div class="container" style="max-width:480px;">
+    <div class="form-card" style="max-width:none;padding:44px;box-shadow:0 12px 30px -15px rgba(15,42,82,0.15);">
+      <h3 style="font-size:24px;font-weight:600;margin-bottom:6px;text-align:center;">Espace Membres</h3>
+      <p style="text-align:center;color:var(--ink-soft);font-size:13.5px;margin-bottom:26px;">Connectez-vous pour accéder à votre carte numérique, vos cotisations et vos ressources.</p>
+      
+      <form class="login-form">
+        <div class="form-field">
+          <label>Identifiant ou Email</label>
+          <input type="email" autocomplete="username" placeholder="vous@exemple.com" required>
+        </div>
+        <div class="form-field">
+          <label>Mot de passe</label>
+          <input type="password" autocomplete="current-password" placeholder="••••••••" minlength="6" required>
+        </div>
+        <button type="submit" class="btn btn-primary form-submit">Se connecter</button>
+      </form>
+
+      <p id="login-message" role="alert" style="display:none;margin-top:14px;padding:10px 12px;border-radius:5px;font-size:13px;"></p>
+
+      <p class="form-note" style="margin-top:20px;">
+          <a href="#" id="forgot-password">Mot de passe oublié ?</a> · <a href="adhesion.html" style="font-weight:600;color:var(--blue-700);">Pas encore membre ? Adhérer</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer id="contact-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</div>
+        <p style="font-size:14px;opacity:0.8;max-width:280px;">Association des Étudiants Peulhs du Sud — éducation, culture et cohésion sociale.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="equipe.html">Équipe dirigeante</a></li>
+          <li><a href="activites.html">Activités &amp; Projets</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="evenements.html">Événements</a></li>
+          <li><a href="galerie.html">Galerie médias</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ressources &amp; Accès</h4>
+        <ul>
+          <li><a href="bibliotheque.html">AEPeS Library</a></li>
+          <li><a href="partenariats.html">Partenariats</a></li>
+          <li><a href="adhesion.html">Adhésion en ligne</a></li>
+          <li><a href="dons.html">Faire un don</a></li>
+          <li><a href="connexion.html">Espace Membres</a></li>
+          <li><a href="admin.html">Administration</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="contact.html">Formulaire de contact</a></li>
+          <li>contact@aepes.org</li>
+          <li>+xxx xx xxx xxx</li>
+          <li>Campus universitaire, Sud</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AEPeS. Tous droits réservés.</span>
+      <span>Fait avec fierté pour la jeunesse peulhe.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

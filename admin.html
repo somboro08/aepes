@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panneau d'Administration Central — AEPeS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pages.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="site-sync.js" defer></script>
+<script src="admin.js" defer></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+
+<!-- VERROU D'ACCÈS & AUTHENTIFICATION ADMIN AVEC RÔLES -->
+<div id="admin-auth-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,42,82,0.95);backdrop-filter:blur(10px);z-index:99999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:white;padding:36px;border-radius:10px;max-width:460px;width:100%;box-shadow:0 24px 48px rgba(0,0,0,0.45);text-align:center;">
+    <div style="width:58px;height:58px;background:var(--blue-100);color:var(--indigo-900);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <svg class="icon icon-lg" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h3 style="font-size:22px;font-weight:700;color:var(--indigo-900);margin-bottom:6px;">Connexion Administration AEPeS</h3>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:20px;">Accédez au panneau de gestion selon vos privilèges et droits attribués.</p>
+    
+    <form id="form-admin-login" style="text-align:left;">
+      <div class="form-field" style="margin-bottom:14px;">
+        <label for="admin-email-input" style="font-size:12.5px;font-weight:600;display:block;margin-bottom:5px;">Identifiant / Email administratif</label>
+        <input type="email" id="admin-email-input" placeholder="admin@aepes.org" autocomplete="username" required style="width:100%;padding:11px 13px;border:1.5px solid var(--blue-300);border-radius:5px;font-size:14px;">
+      </div>
+      <div class="form-field" style="margin-bottom:18px;">
+        <label for="admin-pass-input" style="font-size:12.5px;font-weight:600;display:block;margin-bottom:5px;">Mot de passe / Code d'accès</label>
+        <input type="password" id="admin-pass-input" placeholder="••••••••" autocomplete="current-password" required style="width:100%;padding:11px 13px;border:1.5px solid var(--blue-300);border-radius:5px;font-size:14px;">
+      </div>
+      <button type="submit" id="admin-login-btn" class="btn btn-primary" style="width:100%;padding:12px;font-size:14.5px;font-weight:600;">Se connecter au tableau de bord</button>
+    </form>
+
+    <p style="margin-top:18px;font-size:12px;color:var(--ink-soft);text-align:left;">Les comptes et les rôles sont gérés dans Supabase Auth. Aucun mot de passe n'est enregistré dans le navigateur ou dans la table publique des profils.</p>
+
+    <div style="margin-top:16px;">
+      <a href="index.html" style="font-size:13px;color:var(--ink-soft);text-decoration:underline;">← Retour au site public AEPeS</a>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL UNIVERSELLE DE MODIFICATION / ÉDITION (CRUD) -->
+<div id="admin-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(15,42,82,0.85);backdrop-filter:blur(6px);z-index:99998;align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:white;padding:32px;border-radius:8px;max-width:680px;width:100%;box-shadow:0 24px 48px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--blue-100);padding-bottom:12px;">
+      <h3 id="edit-modal-title" style="font-size:20px;font-weight:700;color:var(--indigo-900);margin:0;display:flex;align-items:center;gap:8px;">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>Modifier l'enregistrement</span>
+      </h3>
+      <button id="edit-modal-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-soft);padding:4px 8px;">✕</button>
+    </div>
+    <form id="form-edit-modal">
+      <input type="hidden" id="edit-table-name">
+      <input type="hidden" id="edit-id-col">
+      <input type="hidden" id="edit-id-val">
+      <div id="edit-modal-fields" class="form-grid">
+        <!-- Généré dynamiquement par admin.js selon la table -->
+      </div>
+      <div style="display:flex;gap:12px;margin-top:24px;justify-content:flex-end;">
+        <button type="button" id="edit-modal-cancel" class="btn btn-ghost">Annuler</button>
+        <button type="submit" id="edit-modal-submit" class="btn btn-primary">Enregistrer les modifications</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL GESTION DES INSCRITS À UN ÉVÉNEMENT -->
+<div id="admin-event-attendees-modal" style="display:none;position:fixed;inset:0;background:rgba(15,42,82,0.85);backdrop-filter:blur(6px);z-index:99998;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;padding:32px;border-radius:8px;max-width:820px;width:100%;box-shadow:0 24px 48px rgba(0,0,0,0.3);position:relative;max-height:90vh;display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--blue-100);padding-bottom:10px;">
+      <div>
+        <h3 id="event-modal-title" style="font-size:19px;font-weight:700;color:var(--indigo-900);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Inscrits à l'événement</span>
+        </h3>
+        <p id="event-modal-subtitle" style="font-size:13px;color:var(--ink-soft);margin:4px 0 0;"></p>
+      </div>
+      <button id="event-attendees-modal-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-soft);">✕</button>
+    </div>
+    
+    <div style="overflow-y:auto;flex:1;margin-bottom:16px;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Participant</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>N° Billet</th>
+            <th>Présence</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="event-attendees-tbody">
+          <tr><td colspan="6" style="text-align:center;padding:20px;color:#718096;">Chargement des inscriptions…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--blue-100);padding-top:14px;">
+      <div id="event-attendees-count" style="font-size:13px;font-weight:600;color:var(--blue-700);"></div>
+      <button id="event-attendees-modal-cancel" class="btn btn-ghost">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VISUALISATION MESSAGE CONTACT -->
+<div id="admin-message-modal" style="display:none;position:fixed;inset:0;background:rgba(15,42,82,0.85);backdrop-filter:blur(6px);z-index:99998;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;padding:32px;border-radius:8px;max-width:550px;width:100%;box-shadow:0 24px 48px rgba(0,0,0,0.3);position:relative;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--blue-100);padding-bottom:10px;">
+      <h3 style="font-size:18px;font-weight:700;color:var(--indigo-900);margin:0;display:flex;align-items:center;gap:8px;">
+        <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span>Détail du message</span>
+      </h3>
+      <button id="msg-modal-close" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-soft);">✕</button>
+    </div>
+    <div id="msg-modal-body" style="font-size:14px;color:var(--ink);line-height:1.6;"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+      <button id="msg-modal-cancel" class="btn btn-ghost">Fermer</button>
+      <a id="msg-modal-reply-btn" href="#" class="btn btn-primary">Répondre par email</a>
+    </div>
+  </div>
+</div>
+
+<div class="admin-shell">
+  <!-- DRAWER OVERLAY MOBILE -->
+  <div id="admin-drawer-overlay" class="admin-drawer-overlay"></div>
+
+  <!-- SIDEBAR NAVIGATION (DRAWER MOBILE) -->
+  <aside class="admin-sidebar" id="admin-sidebar" style="overflow-y:auto;max-height:100vh;">
+    <div class="admin-logo">
+      <a href="index.html" style="color:white;display:flex;align-items:center;gap:10px;">
+        <img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS Admin
+      </a>
+      <button id="admin-drawer-close" class="admin-drawer-close" aria-label="Fermer le menu latéral">✕</button>
+    </div>
+    <ul class="admin-nav">
+      <li>
+        <a href="#" class="active" data-section="sec-dashboard">
+          <svg class="icon" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          <span>Tableau de bord</span>
+        </a>
+      </li>
+      <div class="section-label" data-label-group="admin-sec">Gouvernance &amp; Sécurité</div>
+      <li>
+        <a href="#" data-section="sec-roles" data-required-role="SUPER_ADMIN">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="18" cy="8" r="2"/></svg>
+          <span>Administrateurs &amp; Rôles</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-settings" data-required-role="SUPER_ADMIN">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Paramètres CMS</span>
+        </a>
+      </li>
+      <div class="section-label" data-label-group="content">Contenu &amp; Médias</div>
+      <li>
+        <a href="#" data-section="sec-apropos">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span>À propos &amp; Équipe</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-articles">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+          <span>Actualités &amp; Articles</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-events">
+          <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Événements &amp; Billets</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-projects">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 8 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+          <span>Projets &amp; Activités</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-library">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+          <span>AEPeS Library</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-gallery">
+          <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          <span>Galerie Médias</span>
+        </a>
+      </li>
+      <div class="section-label" data-label-group="members">Membres &amp; Finances</div>
+      <li>
+        <a href="#" data-section="sec-members">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Membres &amp; Adhésions</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-donations">
+          <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+          <span>Dons &amp; Cotisations</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-partners">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 0 0 1.42 0l4.24-4.24a1 1 0 0 0 0-1.42l-2-2"/><path d="m18 10 3-3a1 1 0 0 0 0-1.42l-2.58-2.58a1 1 0 0 0-1.42 0L14 6"/><path d="m2 14 6 6"/><path d="m3.3 7 8.7 8.7"/></svg>
+          <span>Partenaires</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-section="sec-messages">
+          <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <span>Boîte de réception</span>
+        </a>
+      </li>
+      <div class="section-label">Navigation</div>
+      <li>
+        <a href="index.html" target="_blank">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Voir le site public ↗</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" id="admin-logout-btn">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+          <span>Se déconnecter</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL PAR MODULES -->
+  <main class="admin-main" style="overflow-y:auto;max-height:100vh;">
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button id="admin-drawer-toggle" class="admin-menu-toggle" aria-label="Ouvrir le menu latéral">☰</button>
+        <div>
+          <div class="breadcrumb" style="color:var(--ink-soft);margin-bottom:4px;"><a href="index.html">AEPeS</a> / Administration</div>
+          <h1 id="main-admin-title">Panneau d'Administration Central</h1>
+        </div>
+      </div>
+      <div class="admin-user" id="current-admin-display">
+        <div class="avatar" id="current-admin-avatar" style="background:var(--indigo-900);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">RD</div>
+        <div>
+          <div id="current-admin-name" style="font-weight:600;font-size:13.5px;">Ramatoulaye Diallo</div>
+          <span id="current-admin-role" class="badge purple" style="font-size:11px;margin-top:2px;">Super Administrateur</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. SECTION : TABLEAU DE BORD (DASHBOARD) -->
+    <div id="sec-dashboard" class="admin-section">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Membres actifs</div><div class="kpi-value">—</div><div class="kpi-delta">+42 ce mois</div></div>
+        <div class="kpi-card"><div class="kpi-label">Dons reçus (Total)</div><div class="kpi-value">—</div><div class="kpi-delta">Confirmés</div></div>
+        <div class="kpi-card"><div class="kpi-label">Événements planifiés</div><div class="kpi-value">—</div><div class="kpi-delta" style="color:var(--blue-700);">En cours / à venir</div></div>
+        <div class="kpi-card"><div class="kpi-label">Documents Library</div><div class="kpi-value">—</div><div class="kpi-delta" style="color:var(--blue-700);">Ressources actives</div></div>
+      </div>
+
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <h3>Dernières demandes d'adhésion en attente</h3>
+          <a href="#" class="btn btn-ghost" onclick="document.querySelector('a[data-section=sec-members]').click();" style="font-size:12px;padding:6px 12px;">Gérer tous les membres →</a>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Matricule</th><th>Nom &amp; Prénom</th><th>Université</th><th>Téléphone</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="dash-membres-tbody"><tr><td colspan="6" style="color:#718096;padding:14px;">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <h3>Dernières transactions financières</h3>
+          <a href="#" class="btn btn-ghost" onclick="document.querySelector('a[data-section=sec-donations]').click();" style="font-size:12px;padding:6px 12px;">Voir tout le grand livre →</a>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Réf. Transaction</th><th>Donateur / Membre</th><th>Montant</th><th>Moyen</th><th>Date</th><th>Statut</th></tr></thead>
+          <tbody id="dash-dons-tbody"><tr><td colspan="6" style="color:#718096;padding:14px;">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1.5. SECTION : GESTION DES ADMINISTRATEURS & RÔLES (SUPER ADMIN ONLY) -->
+    <div id="sec-roles" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h3 style="margin-bottom:4px;display:flex;align-items:center;gap:8px;">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="18" cy="8" r="2"/></svg>
+              <span>Gestion des Profils &amp; Rôles de l'Administration</span>
+            </h3>
+            <p style="font-size:13.5px;color:var(--ink-soft);margin:0;">En tant que Super Administrateur, créez et gérez les comptes, identifiants de connexion et niveaux d'accès des membres de l'équipe dirigeante.</p>
+          </div>
+          <span class="badge purple" style="font-size:12px;padding:6px 12px;">Privilège Super Admin</span>
+        </div>
+
+        <!-- Formulaire de création d'un nouvel administrateur -->
+        <form id="form-add-admin-user" style="margin-top:16px;background:var(--off-white);padding:20px;border-radius:8px;border:1px solid var(--border-subtle);">
+          <h4 style="font-size:15px;font-weight:700;color:var(--indigo-900);margin-bottom:14px;">+ Créer un nouveau profil administrateur</h4>
+          <div class="form-grid">
+            <div class="form-field"><label>Nom de famille *</label><input type="text" id="adm-user-nom" placeholder="Ex: Sow" required></div>
+            <div class="form-field"><label>Prénom *</label><input type="text" id="adm-user-prenom" placeholder="Ex: Moussa" required></div>
+            <div class="form-field"><label>Email de connexion (Identifiant) *</label><input type="email" id="adm-user-email" placeholder="secretaire@aepes.org" required></div>
+            <div class="form-field">
+              <label>Mot de passe initial *</label>
+              <div style="position:relative;display:flex;align-items:center;">
+                <input type="password" id="adm-user-pwd" autocomplete="new-password" minlength="8" required style="width:100%;padding-right:75px;">
+                <button type="button" id="btn-gen-pwd" class="btn btn-ghost" style="position:absolute;right:4px;font-size:11px;padding:4px 8px;">Générer</button>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Rôle attribué &amp; Périmètre d'accès *</label>
+              <select id="adm-user-role" required>
+                <option value="1">👑 1. Super Administrateur (Accès Total &amp; Gestion des Rôles)</option>
+                <option value="2" selected>📋 2. Secrétaire Général / Admin (Membres, Inscriptions, Messages)</option>
+                <option value="3">💰 3. Trésorier Général (Dons, Cotisations &amp; Finances)</option>
+                <option value="4">📢 4. Responsable Communication &amp; Médias (Actualités, Galerie, Partenariats)</option>
+                <option value="5">🚀 5. Responsable Projets &amp; Activités (Programmes &amp; Suivi Budgets)</option>
+                <option value="6">📚 6. Responsable Éducation &amp; Bibliothèque (AEPeS Library &amp; Cours)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Statut du compte</label>
+              <select id="adm-user-statut">
+                <option value="actif" selected>Actif (Accès autorisé)</option>
+                <option value="inactif">Inactif (Accès suspendu)</option>
+              </select>
+            </div>
+            <div class="form-field full">
+              <label>Photo de profil / Avatar (Upload ou URL image)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="adm-user-file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL photo :</span>
+                <input type="url" id="adm-user-avatar-url" placeholder="https://images.unsplash.com/..." style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;padding:11px 20px;">+ Enregistrer et délivrer les accès</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Équipe Administrative Actuelle</h3>
+          <button id="btn-refresh-admins" class="btn btn-ghost" style="font-size:12px;padding:5px 12px;">🔄 Actualiser la liste</button>
+        </div>
+        <table class="admin-table" id="admin-users-table">
+          <thead>
+            <tr>
+              <th>Avatar</th>
+              <th>Nom &amp; Prénom</th>
+              <th>Identifiant / Email</th>
+              <th>Rôle &amp; Titre</th>
+              <th>Authentification</th>
+              <th>Statut</th>
+              <th>Date de création</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-tbody">
+            <tr><td colspan="8" style="color:#718096;padding:16px;text-align:center;">Chargement des administrateurs…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Guide récapitulatif de la matrice des rôles -->
+      <div class="admin-panel">
+        <h3 style="margin-bottom:16px;">Matrice des Rôles &amp; Permissions d'Accès</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:14px;">
+          <div style="background:var(--off-white);border:1px solid var(--border-subtle);border-radius:6px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="color:var(--indigo-900);">Super Administrateur</strong>
+              <span class="badge purple">SUPER_ADMIN</span>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Accès illimité à l'intégralité du site et des fonctions de direction.</p>
+            <div style="font-size:12px;color:var(--ink);"><strong>Sections autorisées :</strong> Tous les modules, Création/attribution de rôles, CMS Global, Grand Livre financier.</div>
+          </div>
+          <div style="background:var(--off-white);border:1px solid var(--border-subtle);border-radius:6px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="color:var(--indigo-900);">Secrétaire Général</strong>
+              <span class="badge blue">ADMIN</span>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Gestion administrative courante et relation avec les membres.</p>
+            <div style="font-size:12px;color:var(--ink);"><strong>Sections autorisées :</strong> Tableau de bord, Membres &amp; Adhésions, Événements, Boîte de réception, Partenaires.</div>
+          </div>
+          <div style="background:var(--off-white);border:1px solid var(--border-subtle);border-radius:6px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="color:var(--indigo-900);">Trésorier Général</strong>
+              <span class="badge green">TRESORIER</span>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Comptabilité, enregistrement des dons et cotisations des membres.</p>
+            <div style="font-size:12px;color:var(--ink);"><strong>Sections autorisées :</strong> Tableau de bord financier, Dons &amp; Cotisations, Membres.</div>
+          </div>
+          <div style="background:var(--off-white);border:1px solid var(--border-subtle);border-radius:6px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="color:var(--indigo-900);">Responsable Communication</strong>
+              <span class="badge amber">EDITEUR</span>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Diffusion de l'information, publications d'articles et couverture médiatique.</p>
+            <div style="font-size:12px;color:var(--ink);"><strong>Sections autorisées :</strong> Actualités &amp; Articles, Galerie Médias, Événements, Partenariats.</div>
+          </div>
+          <div style="background:var(--off-white);border:1px solid var(--border-subtle);border-radius:6px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="color:var(--indigo-900);">Responsable Projets</strong>
+              <span class="badge teal">RESP_PROJET</span>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Pilotage des commissions de projets, incubateurs et suivi de terrain.</p>
+            <div style="font-size:12px;color:var(--ink);"><strong>Sections autorisées :</strong> Projets &amp; Activités, Galerie Médias, Événements.</div>
+          </div>
+          <div style="background:var(--off-white);border:1px solid var(--border-subtle);border-radius:6px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="color:var(--indigo-900);">Responsable Éducation</strong>
+              <span class="badge indigo">RESP_EDUCATION</span>
+            </div>
+            <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Gestion des documents académiques, annales et supports de cours.</p>
+            <div style="font-size:12px;color:var(--ink);"><strong>Sections autorisées :</strong> AEPeS Library, Événements, Projets.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION : À PROPOS & ÉQUIPE -->
+    <div id="sec-apropos" class="admin-section" style="display:none;">
+      
+      <!-- Panel À propos -->
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Contenu de la page "À propos"</h3>
+          <button id="btn-refresh-apropos" class="btn btn-ghost" style="font-size:12px;padding:5px 12px;">🔄 Actualiser</button>
+        </div>
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">Gérez l'historique (timeline), la vision, la mission et les valeurs.</p>
+        
+        <form id="form-add-apropos" style="background:var(--off-white);padding:16px;border-radius:6px;margin-bottom:20px;border:1px solid var(--border-subtle);">
+          <h4 style="margin-bottom:12px;font-size:14px;">Ajouter / Modifier un élément</h4>
+          <input type="hidden" id="apropos-id">
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Section</label>
+              <select id="apropos-section" required>
+                <option value="timeline">Historique (Timeline)</option>
+                <option value="vision">Vision</option>
+                <option value="mission">Mission</option>
+                <option value="valeur">Valeur</option>
+              </select>
+            </div>
+            <div class="form-field"><label>Titre / Année</label><input type="text" id="apropos-titre" required></div>
+            <div class="form-field full"><label>Contenu / Description</label><textarea id="apropos-contenu" rows="2" required></textarea></div>
+            <div class="form-field"><label>Ordre d'affichage</label><input type="number" id="apropos-ordre" value="1" min="1" required></div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;">
+            <button type="submit" class="btn btn-primary" style="padding:8px 16px;">Enregistrer</button>
+            <button type="button" class="btn btn-ghost" id="btn-cancel-apropos" style="padding:8px 16px;display:none;">Annuler</button>
+          </div>
+        </form>
+
+        <table class="admin-table" id="table-apropos">
+          <thead>
+            <tr>
+              <th>Section</th>
+              <th>Titre</th>
+              <th>Contenu</th>
+              <th>Ordre</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-apropos">
+            <tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Panel Équipe -->
+      <div class="admin-panel" style="margin-top:30px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Équipe Dirigeante</h3>
+          <button id="btn-refresh-equipe" class="btn btn-ghost" style="font-size:12px;padding:5px 12px;">🔄 Actualiser</button>
+        </div>
+        
+        <form id="form-add-equipe" style="background:var(--off-white);padding:16px;border-radius:6px;margin-bottom:20px;border:1px solid var(--border-subtle);">
+          <h4 style="margin-bottom:12px;font-size:14px;">Ajouter / Modifier un membre</h4>
+          <input type="hidden" id="equipe-id">
+          <div class="form-grid">
+            <div class="form-field"><label>Prénom</label><input type="text" id="equipe-prenom" required></div>
+            <div class="form-field"><label>Nom</label><input type="text" id="equipe-nom" required></div>
+            <div class="form-field"><label>Poste / Rôle</label><input type="text" id="equipe-poste" required></div>
+            <div class="form-field"><label>Description courte</label><input type="text" id="equipe-description"></div>
+            <div class="form-field"><label>LinkedIn (URL)</label><input type="url" id="equipe-linkedin"></div>
+            <div class="form-field"><label>Twitter (URL)</label><input type="url" id="equipe-twitter"></div>
+            <div class="form-field"><label>Ordre</label><input type="number" id="equipe-ordre" value="1" min="1" required></div>
+            <div class="form-field"><label style="display:flex;gap:8px;align-items:center;"><input type="checkbox" id="equipe-visible" checked> Visible sur la page publique</label></div>
+            
+            <div class="form-field full" style="background:var(--blue-100);padding:12px;border-radius:6px;">
+              <label style="font-weight:600;">Photo de profil</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+                <input type="file" id="equipe-file" accept="image/*" style="font-size:13px;">
+                <span style="font-size:13px;">ou URL :</span>
+                <input type="url" id="equipe-photo-url" style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;">
+            <button type="submit" class="btn btn-primary" style="padding:8px 16px;">Enregistrer le membre</button>
+            <button type="button" class="btn btn-ghost" id="btn-cancel-equipe" style="padding:8px 16px;display:none;">Annuler</button>
+          </div>
+        </form>
+
+        <table class="admin-table" id="table-equipe">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Prénom & Nom</th>
+              <th>Poste</th>
+              <th>Ordre</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-equipe">
+            <tr><td colspan="6" style="text-align:center;">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. SECTION : PARAMÈTRES DU SITE (CMS GLOBAL & IMAGES ACCUEIL) -->
+    <div id="sec-settings" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Configuration Générale, Textes &amp; Visuels du Site (CMS)</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:24px;">Toutes les modifications enregistrées ici (y compris les images du Hero et du Président) s'appliquent immédiatement sur l'ensemble des pages publiques du site.</p>
+        
+        <form id="form-site-settings">
+          <div class="form-grid">
+            <div class="form-field"><label>Nom officiel de l'association</label><input type="text" id="setting-site_nom" required></div>
+            <div class="form-field"><label>Slogan principal (Titre Hero)</label><input type="text" id="setting-site_slogan" required></div>
+            
+            <div class="form-field full"><label>Description institutionnelle (Paragraphe Hero)</label><textarea id="setting-site_description" rows="2" required></textarea></div>
+            
+            <!-- Visuels Accueil CMS -->
+            <div class="form-field full" style="background:var(--blue-100);padding:16px;border-radius:6px;">
+              <label style="font-weight:700;color:var(--indigo-900);">Image principale Hero (Page d'accueil)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+                <input type="file" id="setting-hero_file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL :</span>
+                <input type="url" id="setting-hero_image_url" placeholder="https://images.unsplash.com/..." style="flex:1;min-width:200px;">
+              </div>
+              <div id="setting-hero-preview" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="form-field full" style="background:var(--blue-100);padding:16px;border-radius:6px;">
+              <label style="font-weight:700;color:var(--indigo-900);">Photo officielle du Président</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+                <input type="file" id="setting-president_file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL :</span>
+                <input type="url" id="setting-president_photo_url" placeholder="https://..." style="flex:1;min-width:200px;">
+              </div>
+              <div id="setting-president-preview" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="form-field"><label>Email officiel de contact</label><input type="email" id="setting-contact_email" required></div>
+            <div class="form-field"><label>Numéro de téléphone / WhatsApp</label><input type="text" id="setting-contact_telephone" required></div>
+            <div class="form-field full"><label>Adresse géographique / Campus</label><input type="text" id="setting-contact_adresse" required></div>
+
+            <div class="form-field"><label>Nom du Président</label><input type="text" id="setting-president_nom" required></div>
+            <div class="form-field"><label>Citation / Mot du Président</label><textarea id="setting-president_citation" rows="2" required></textarea></div>
+
+            <div class="form-field"><label>Chiffre : Membres actifs</label><input type="text" id="setting-stat_membres" placeholder="1 200+"></div>
+            <div class="form-field"><label>Chiffre : Projets réalisés</label><input type="text" id="setting-stat_projets" placeholder="45"></div>
+            <div class="form-field"><label>Chiffre : Universités</label><input type="text" id="setting-stat_universites" placeholder="18"></div>
+            <div class="form-field"><label>Chiffre : Années d'engagement</label><input type="text" id="setting-stat_annees" placeholder="12"></div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:14px;padding:12px 24px;">Enregistrer les modifications du site &amp; Visuels</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. SECTION : ACTUALITÉS & ARTICLES -->
+    <div id="sec-articles" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <h3>Publier un nouvel article</h3>
+        </div>
+        <form id="form-add-article">
+          <div class="form-grid">
+            <div class="form-field"><label>Titre de l'article *</label><input type="text" id="art-titre" placeholder="Titre percutant" required></div>
+            <div class="form-field"><label>Catégorie *</label>
+              <select id="art-categorie">
+                <option value="1">Éducation</option>
+                <option value="2">Culture</option>
+                <option value="3">Partenariats</option>
+                <option value="4">Vie associative</option>
+              </select>
+            </div>
+            <div class="form-field full"><label>Résumé / Chapeau *</label><input type="text" id="art-chapeau" placeholder="Brève introduction (1 phrase)" required></div>
+            <div class="form-field full"><label>Contenu complet de l'article (Texte / HTML) *</label><textarea id="art-contenu" rows="4" placeholder="Rédigez le texte de l'article..." required></textarea></div>
+            
+            <div class="form-field full">
+              <label>Image de couverture (Upload Supabase Storage ou URL)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="art-file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL :</span>
+                <input type="url" id="art-img-url" placeholder="https://images.unsplash.com/..." style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Publier l'article</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Articles publiés</h3>
+        <table class="admin-table" id="articles-table">
+          <thead><tr><th>Couverture</th><th>Titre</th><th>Catégorie</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="6" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. SECTION : ÉVÉNEMENTS & INSCRIPTIONS -->
+    <div id="sec-events" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Ajouter un événement au calendrier</h3>
+        <form id="form-add-event">
+          <div class="form-grid">
+            <div class="form-field"><label>Titre de l'événement *</label><input type="text" id="ev-titre" required></div>
+            <div class="form-field"><label>Lieu / Amphi / Campus *</label><input type="text" id="ev-lieu" required></div>
+            <div class="form-field"><label>Date et heure *</label><input type="datetime-local" id="ev-date" required></div>
+            <div class="form-field"><label>Capacité maximale (places) *</label><input type="number" id="ev-capacite" value="150" required></div>
+            <div class="form-field full"><label>Description de l'événement</label><textarea id="ev-desc" rows="2" placeholder="Programme, intervenants..."></textarea></div>
+            <div class="form-field full">
+              <label>Affiche / Flyer (Upload Supabase Storage ou URL)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="ev-file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL :</span>
+                <input type="url" id="ev-img-url" placeholder="https://..." style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Créer l'événement</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Événements programmés</h3>
+        <table class="admin-table" id="events-table">
+          <thead><tr><th>Flyer</th><th>Événement</th><th>Date</th><th>Lieu</th><th>Capacité</th><th>Inscriptions</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="7" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. SECTION : PROJETS & ACTIVITÉS -->
+    <div id="sec-projects" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Ajouter un nouveau projet ou programme</h3>
+        <form id="form-add-project">
+          <div class="form-grid">
+            <div class="form-field"><label>Titre du projet *</label><input type="text" id="proj-titre" placeholder="Ex: Incubateur de projets jeunes" required></div>
+            <div class="form-field"><label>Commission / Catégorie *</label>
+              <select id="proj-cat">
+                <option value="Éducation">Éducation</option>
+                <option value="Culture">Culture</option>
+                <option value="Entrepreneuriat">Entrepreneuriat</option>
+                <option value="Social & Solidarité">Social &amp; Solidarité</option>
+              </select>
+            </div>
+            <div class="form-field"><label>Budget prévisionnel (FCFA)</label><input type="number" id="proj-budget" placeholder="2500000"></div>
+            <div class="form-field"><label>Bénéficiaires visés</label><input type="text" id="proj-benef" placeholder="300 étudiants, 25 porteurs..."></div>
+            <div class="form-field"><label>Statut du projet</label>
+              <select id="proj-statut">
+                <option value="en_cours">En cours</option>
+                <option value="termine">Terminé</option>
+                <option value="planifie">Planifié</option>
+              </select>
+            </div>
+            <div class="form-field full"><label>Description détaillée du projet</label><textarea id="proj-desc" rows="3" placeholder="Objectifs, déroulement, impact attendu..."></textarea></div>
+            
+            <div class="form-field full">
+              <label>Image de couverture du projet (Upload Supabase Storage ou URL)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="proj-file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL :</span>
+                <input type="url" id="proj-img-url" placeholder="https://images.unsplash.com/..." style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Ajouter le projet</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Projets &amp; Activités portés par l'AEPeS</h3>
+        <table class="admin-table" id="projects-table">
+          <thead><tr><th>Image</th><th>Projet</th><th>Commission</th><th>Budget</th><th>Bénéficiaires</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="7" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. SECTION : AEPeS LIBRARY -->
+    <div id="sec-library" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Ajouter un cours ou document à la bibliothèque</h3>
+        <form id="form-add-doc">
+          <div class="form-grid">
+            <div class="form-field"><label>Titre du document *</label><input type="text" id="doc-titre" placeholder="Support de cours, guide, livre..." required></div>
+            <div class="form-field"><label>Catégorie *</label>
+              <select id="doc-cat"><option value="1">Cours &amp; Polycopiés</option><option value="2">Livres &amp; Manuels</option><option value="3">Examens &amp; Annales</option><option value="4">Recherche &amp; Thèses</option></select>
+            </div>
+            <div class="form-field"><label>Filière / Domaine</label><input type="text" id="doc-filiere" placeholder="Économie, Droit, Informatique..."></div>
+            <div class="form-field"><label>Niveau recommandé</label><input type="text" id="doc-niveau" placeholder="Licence 1, Master 2..."></div>
+            <div class="form-field full"><label>Description synthétique</label><input type="text" id="doc-desc" placeholder="Ex: Support de cours magistral et TD corrigés"></div>
+            <div class="form-field full">
+              <label>Fichier Document (Upload Supabase Storage vers documents_library ou URL)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="doc-file" accept=".pdf,.doc,.docx,.epub,.zip" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL directe PDF :</span>
+                <input type="url" id="doc-url" placeholder="https://.../document.pdf" style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Ajouter à la bibliothèque</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Ressources en ligne</h3>
+        <table class="admin-table" id="library-table">
+          <thead><tr><th>Titre</th><th>Catégorie</th><th>Filière</th><th>Format</th><th>Téléchargements</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="6" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7. SECTION : GALERIE MÉDIAS -->
+    <div id="sec-gallery" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Ajouter une photo ou média à la galerie</h3>
+        <form id="form-add-gallery">
+          <div class="form-grid">
+            <div class="form-field"><label>Titre / Album *</label><input type="text" id="gal-titre" placeholder="Ex: Semaine culturelle peulhe 2026" required></div>
+            <div class="form-field"><label>Type de média</label>
+              <select id="gal-type"><option value="image">Photo / Image</option><option value="video">Vidéo</option></select>
+            </div>
+            <div class="form-field"><label>Date de prise de vue</label><input type="date" id="gal-date"></div>
+            <div class="form-field full"><label>Légende / Description</label><input type="text" id="gal-caption" placeholder="Description de la photo ou événement"></div>
+            <div class="form-field full">
+              <label>Fichier Image (Upload Supabase Storage vers galerie_photos ou URL)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="gal-file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL image :</span>
+                <input type="url" id="gal-url" placeholder="https://..." style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Ajouter à la galerie</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Photos et Médias publiés</h3>
+        <table class="admin-table" id="gallery-table">
+          <thead><tr><th>Aperçu</th><th>Titre Album</th><th>Légende</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody><tr><td colspan="5" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 8. SECTION : MEMBRES & ADHÉSIONS -->
+    <div id="sec-members" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
+          <h3>Membres &amp; Validation des Demandes</h3>
+          <div style="display:flex;gap:8px;">
+            <a href="adhesion.html" target="_blank" class="btn btn-ghost" style="font-size:12px;">+ Formulaire public d'adhésion ↗</a>
+          </div>
+        </div>
+        
+        <!-- Filtre rapide membres -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn btn-ghost member-filter-btn active" data-filter="all" style="font-size:12px;padding:5px 12px;">Tous</button>
+          <button class="btn btn-ghost member-filter-btn" data-filter="en_attente" style="font-size:12px;padding:5px 12px;color:#D97706;">En attente</button>
+          <button class="btn btn-ghost member-filter-btn" data-filter="valide" style="font-size:12px;padding:5px 12px;color:#059669;">Validés</button>
+          <button class="btn btn-ghost member-filter-btn" data-filter="rejete" style="font-size:12px;padding:5px 12px;color:#DC2626;">Rejetés</button>
+        </div>
+
+        <table class="admin-table">
+          <thead><tr><th>Photo</th><th>Matricule</th><th>Nom &amp; Prénom</th><th>Université</th><th>Téléphone</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="sec-members-tbody"><tr><td colspan="7" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 9. SECTION : DONS & FINANCES -->
+    <div id="sec-donations" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Enregistrer un don ou une cotisation manuelle</h3>
+        <form id="form-add-donation">
+          <div class="form-grid">
+            <div class="form-field"><label>Nom du donateur / membre *</label><input type="text" id="don-nom" placeholder="Nom ou Société" required></div>
+            <div class="form-field"><label>Email</label><input type="email" id="don-email" placeholder="email@exemple.com"></div>
+            <div class="form-field"><label>Montant (FCFA) *</label><input type="number" id="don-montant" placeholder="25000" required></div>
+            <div class="form-field"><label>Moyen de paiement *</label>
+              <select id="don-moyen">
+                <option value="Orange Money">Orange Money</option>
+                <option value="MTN Mobile Money">MTN Mobile Money</option>
+                <option value="Moov Money">Moov Money</option>
+                <option value="Wave">Wave</option>
+                <option value="Carte Bancaire">Carte Bancaire (Visa/Mastercard)</option>
+                <option value="Espèces">Espèces / Guichet</option>
+              </select>
+            </div>
+            <div class="form-field"><label>Statut</label>
+              <select id="don-statut"><option value="confirme">Confirmé</option><option value="en_attente">En attente</option></select>
+            </div>
+            <div class="form-field"><label>Référence transaction</label><input type="text" id="don-ref" placeholder="Ex: MAN-2026-001"></div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Enregistrer la transaction</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Grand Livre des Dons &amp; Cotisations</h3>
+        <table class="admin-table">
+          <thead><tr><th>Réf. Transaction</th><th>Donateur</th><th>Montant</th><th>Moyen</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="sec-donations-tbody"><tr><td colspan="7" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 10. SECTION : PARTENARIATS -->
+    <div id="sec-partners" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Ajouter une organisation partenaire</h3>
+        <form id="form-add-partner">
+          <div class="form-grid">
+            <div class="form-field"><label>Nom de l'organisation / Entreprise *</label><input type="text" id="part-nom" placeholder="Ex: Université de Ngaoundéré" required></div>
+            <div class="form-field"><label>Contact référent</label><input type="text" id="part-contact" placeholder="Pr. Ahmadou..."></div>
+            <div class="form-field"><label>Email de contact *</label><input type="email" id="part-email" placeholder="partenaire@domaine.org" required></div>
+            <div class="form-field"><label>Téléphone</label><input type="tel" id="part-tel" placeholder="+237 6XX XX XX XX"></div>
+            <div class="form-field"><label>Type de convention</label><input type="text" id="part-type" placeholder="Académique, Mécénat, Stage..."></div>
+            <div class="form-field full">
+              <label>Logo de l'organisation (Upload ou URL)</label>
+              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <input type="file" id="part-file" accept="image/*" style="font-size:13px;">
+                <span style="color:var(--ink-soft);font-size:13px;">ou URL logo :</span>
+                <input type="url" id="part-url" placeholder="https://..." style="flex:1;min-width:200px;">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">+ Ajouter le partenaire</button>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h3>Réseau des Universités &amp; Entreprises Partenaires</h3>
+        <table class="admin-table">
+          <thead><tr><th>Logo</th><th>Organisation</th><th>Contact Référent</th><th>Email</th><th>Type</th><th>Actions</th></tr></thead>
+          <tbody id="sec-partners-tbody"><tr><td colspan="6" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 11. SECTION : MESSAGES DE CONTACT -->
+    <div id="sec-messages" class="admin-section" style="display:none;">
+      <div class="admin-panel">
+        <h3>Boîte de réception des messages</h3>
+        <table class="admin-table">
+          <thead><tr><th>Expéditeur</th><th>Email</th><th>Objet</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="sec-messages-tbody"><tr><td colspan="6" style="color:#718096;padding:14px;">Chargement depuis Supabase…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

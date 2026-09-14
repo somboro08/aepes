@@ -1,0 +1,7 @@
+[functions.register-member]
+verify_jwt = false
+
+[functions.manage-admin]
+# Le gateway doit laisser passer OPTIONS afin que la fonction puisse gérer
+# elle-même CORS puis vérifier le JWT du véritable appelant dans son code.
+verify_jwt = false

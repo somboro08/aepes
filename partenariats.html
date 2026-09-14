@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partenariats — AEPeS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pages.css">
+<script src="site-sync.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js" defer></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+<div class="thread" aria-hidden="true"><svg viewBox="0 0 400 14" preserveAspectRatio="none"><path d="M0,7 Q10,0 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#1F5390" stroke-width="1.4"/><path d="M0,7 Q10,14 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#8FB8E6" stroke-width="1.4"/></svg></div>
+<header>
+  <nav>
+    <a href="index.html" class="logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</a>
+    <div class="nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="apropos.html">À propos</a>
+      <a href="equipe.html">Équipe</a>
+      <a href="activites.html">Activités</a>
+      <a href="actualites.html">Actualités</a>
+      <a href="evenements.html">Événements</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="bibliotheque.html">AEPeS Library</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="connexion.html" class="btn btn-member">Espace Membres</a>
+      <a href="adhesion.html" class="btn btn-ghost">Adhérer</a>
+      <a href="dons.html" class="btn btn-primary">Faire un don</a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Accueil</a> / Partenariats</div>
+    <h1>Devenir partenaire de l'AEPeS</h1>
+    <p>Universités, entreprises et institutions : associez votre image à une jeunesse engagée et soutenez nos projets d'excellence.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Réseau partenarial</div>
+        <h2>Ils font confiance à notre association</h2>
+      </div>
+    </div>
+    <div class="partners-row" style="margin-bottom:50px;">
+      <div class="partner-mark" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--indigo-900);">Univ. Ngaoundéré</div>
+      <div class="partner-mark" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--indigo-900);">Univ. Maroua</div>
+      <div class="partner-mark" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--indigo-900);">Univ. Garoua</div>
+      <div class="partner-mark" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--indigo-900);">Chambre Commerce</div>
+      <div class="partner-mark" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--indigo-900);">Fondation Sahel</div>
+    </div>
+
+    <div class="form-card">
+      <h3 style="font-size:20px;font-weight:600;margin-bottom:8px;text-align:center;">Proposer une convention de partenariat</h3>
+      <p style="text-align:center;color:var(--ink-soft);font-size:13.5px;margin-bottom:28px;">Notre bureau exécutif prendra contact avec votre structure sous 48h.</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Organisation / Entreprise</label><input type="text" placeholder="Nom de votre structure" required></div>
+        <div class="form-field"><label>Nom du représentant</label><input type="text" placeholder="Nom et titre du contact" required></div>
+        <div class="form-field"><label>Email officiel</label><input type="email" placeholder="contact@organisation.com" required></div>
+        <div class="form-field"><label>Téléphone professionnel</label><input type="tel" placeholder="+xxx xx xxx xxx" required></div>
+        <div class="form-field full"><label>Type de partenariat envisagé</label>
+          <select>
+            <option>Académique (Stages, mentorat, bourses)</option>
+            <option>Financier (Mécénat de projet, subventions)</option>
+            <option>Matériel (Équipements, locaux, fournitures)</option>
+            <option>Événementiel &amp; Communication (Sponsoring)</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>Dossier de partenariat ou lettre d'intention (PDF)</label>
+          <div class="upload-zone" id="upload-zone-dossier" style="border:1.5px dashed var(--blue-300);border-radius:4px;padding:20px;text-align:center;background:var(--blue-100);cursor:pointer;">
+            <input type="file" id="dossier-file" accept=".pdf" style="display:none;">
+            <div id="dossier-label" style="font-size:13.5px;color:var(--ink-soft);">📄 Cliquez ici pour téléverser votre dossier (Format PDF — 15 Mo max)</div>
+            <div id="dossier-preview" style="display:none;margin-top:10px;">
+              <span id="dossier-filename" style="font-size:13px;color:var(--blue-700);font-weight:600;">Dossier sélectionné ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary form-submit">Envoyer ma proposition de partenariat</button>
+    </div>
+  </div>
+</section>
+
+<footer id="contact-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</div>
+        <p style="font-size:14px;opacity:0.8;max-width:280px;">Association des Étudiants Peulhs du Sud — éducation, culture et cohésion sociale.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="equipe.html">Équipe dirigeante</a></li>
+          <li><a href="activites.html">Activités &amp; Projets</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="evenements.html">Événements</a></li>
+          <li><a href="galerie.html">Galerie médias</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ressources &amp; Accès</h4>
+        <ul>
+          <li><a href="bibliotheque.html">AEPeS Library</a></li>
+          <li><a href="partenariats.html">Partenariats</a></li>
+          <li><a href="adhesion.html">Adhésion en ligne</a></li>
+          <li><a href="dons.html">Faire un don</a></li>
+          <li><a href="connexion.html">Espace Membres</a></li>
+          <li><a href="admin.html">Administration</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="contact.html">Formulaire de contact</a></li>
+          <li>contact@aepes.org</li>
+          <li>+xxx xx xxx xxx</li>
+          <li>Campus universitaire, Sud</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AEPeS. Tous droits réservés.</span>
+      <span>Fait avec fierté pour la jeunesse peulhe.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

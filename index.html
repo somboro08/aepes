@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEPeS — Association des Étudiants Peulhs du Sud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js" defer></script>
+<script src="site-sync.js" defer></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+
+<div class="thread" aria-hidden="true">
+  <svg viewBox="0 0 400 14" preserveAspectRatio="none">
+    <path d="M0,7 Q10,0 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#1F5390" stroke-width="1.4"/>
+    <path d="M0,7 Q10,14 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#8FB8E6" stroke-width="1.4"/>
+  </svg>
+</div>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Accueil</a>
+      <a href="apropos.html">À propos</a>
+      <a href="equipe.html">Équipe</a>
+      <a href="activites.html">Activités</a>
+      <a href="actualites.html">Actualités</a>
+      <a href="evenements.html">Événements</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="bibliotheque.html">AEPeS Library</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="connexion.html" class="btn btn-member">Espace Membres</a>
+      <a href="adhesion.html" class="btn btn-ghost">Adhérer</a>
+      <a href="dons.html" class="btn btn-primary">Faire un don</a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">Association étudiante</div>
+      <h1>Unir la jeunesse peulhe<br>autour de <em>l'éducation</em> et de la culture.</h1>
+      <p>L'AEPeS accompagne les étudiants peulhs du Sud dans leur réussite académique, tout en préservant un héritage culturel vivant et en bâtissant des ponts vers l'entrepreneuriat.</p>
+      <div class="hero-actions">
+        <a href="adhesion.html" class="btn btn-primary">Devenir membre</a>
+        <a href="apropos.html" class="btn btn-ghost">Découvrir la mission</a>
+      </div>
+    </div>
+    <div class="hero-visual"><div class="weave"></div></div>
+  </div>
+</section>
+
+<div class="thread" aria-hidden="true">
+  <svg viewBox="0 0 400 14" preserveAspectRatio="none">
+    <path d="M0,7 Q10,0 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#1F5390" stroke-width="1.4"/>
+    <path d="M0,7 Q10,14 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#8FB8E6" stroke-width="1.4"/>
+  </svg>
+</div>
+
+<section class="stats">
+  <div class="container stats-grid">
+    <div><div class="stat-num">1 200+</div><div class="stat-label">Membres actifs</div></div>
+    <div><div class="stat-num">45</div><div class="stat-label">Projets réalisés</div></div>
+    <div><div class="stat-num">18</div><div class="stat-label">Universités représentées</div></div>
+    <div><div class="stat-num">12</div><div class="stat-label">Ans d'engagement</div></div>
+  </div>
+</section>
+
+<section id="apropos">
+  <div class="container president">
+    <div class="president-photo"></div>
+    <div>
+      <div class="eyebrow">Mot du Président</div>
+      <blockquote>« Notre force vient de notre unité. L'AEPeS n'est pas seulement une association, c'est une famille qui porte l'ambition de toute une génération. »</blockquote>
+      <cite>Amadou Diallo Bâ</cite>
+      <div class="role">Président de l'AEPeS</div>
+      <div style="margin-top:20px;">
+        <a href="equipe.html" class="btn btn-ghost">Découvrir l'équipe dirigeante →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-soft" id="activites">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Nos activités et projets</h2>
+        <p>Éducation, sensibilisation, culture et entrepreneuriat : des actions concrètes portées par et pour les étudiants.</p>
+      </div>
+      <a href="activites.html" class="btn btn-ghost">Voir tous les projets →</a>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-media"><span class="card-tag">Éducation</span></div>
+        <div class="card-body">
+          <h3>Programme de tutorat universitaire</h3>
+          <p>Accompagnement des nouveaux bacheliers par des étudiants seniors bénévoles.</p>
+          <a href="activites.html" class="card-link">En savoir plus →</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-media"><span class="card-tag">Culture</span></div>
+        <div class="card-body">
+          <h3>Semaine culturelle peulhe</h3>
+          <p>Un événement annuel célébrant la langue, la musique et l'artisanat peulhs.</p>
+          <a href="activites.html" class="card-link">En savoir plus →</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-media"><span class="card-tag">Entrepreneuriat</span></div>
+        <div class="card-body">
+          <h3>Incubateur de projets jeunes</h3>
+          <p>Formations et micro-financements pour les initiatives portées par les membres.</p>
+          <a href="activites.html" class="card-link">En savoir plus →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="actualites">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Dernières actualités</h2>
+        <p>Suivez la vie de l'association et ses temps forts.</p>
+      </div>
+      <a href="actualites.html" class="btn btn-ghost">Toutes les actualités →</a>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-media"></div>
+        <div class="card-body">
+          <div class="card-date">12 août 2026</div>
+          <h3>Lancement de la bibliothèque numérique AEPeS Library</h3>
+          <p>Un nouvel espace pour accéder gratuitement à des cours et documents.</p>
+          <a href="article.html" class="card-link">Lire l'article →</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-media"></div>
+        <div class="card-body">
+          <div class="card-date">28 juillet 2026</div>
+          <h3>Bilan de la campagne de rentrée académique</h3>
+          <p>Plus de 300 nouveaux membres accueillis cette année.</p>
+          <a href="actualites.html" class="card-link">Lire l'article →</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-media"></div>
+        <div class="card-body">
+          <div class="card-date">5 juillet 2026</div>
+          <h3>Signature d'un partenariat avec trois universités</h3>
+          <p>De nouvelles bourses d'excellence pour les membres de l'AEPeS.</p>
+          <a href="partenariats.html" class="card-link">En savoir plus →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-soft" id="evenements">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Prochains événements</h2>
+        <p>Inscrivez-vous et participez à la vie de l'association.</p>
+      </div>
+      <a href="evenements.html" class="btn btn-ghost">Calendrier complet →</a>
+    </div>
+    <div>
+      <div class="event-row">
+        <div class="event-date"><div class="day">14</div><div class="month">Sept</div></div>
+        <div><h4>Assemblée générale annuelle</h4><p>Campus central — 14h00</p></div>
+        <a href="inscription-evenement.html" class="btn btn-ghost">S'inscrire</a>
+      </div>
+      <div class="event-row">
+        <div class="event-date"><div class="day">2</div><div class="month">Oct</div></div>
+        <div><h4>Forum entrepreneuriat des jeunes</h4><p>Chambre de commerce — 9h00</p></div>
+        <a href="inscription-evenement.html" class="btn btn-ghost">S'inscrire</a>
+      </div>
+      <div class="event-row">
+        <div class="event-date"><div class="day">20</div><div class="month">Oct</div></div>
+        <div><h4>Soirée culturelle peulhe</h4><p>Maison des associations — 18h00</p></div>
+        <a href="inscription-evenement.html" class="btn btn-ghost">S'inscrire</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Ils nous soutiennent</div>
+        <h2 style="font-size:28px;">Nos partenaires institutionnels</h2>
+      </div>
+      <a href="partenariats.html" class="btn btn-ghost">Devenir partenaire →</a>
+    </div>
+    <div class="partners-row">
+      <div class="partner-mark"></div>
+      <div class="partner-mark"></div>
+      <div class="partner-mark"></div>
+      <div class="partner-mark"></div>
+      <div class="partner-mark"></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-soft">
+  <div class="container">
+    <div class="section-head">
+      <h2>Témoignages</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi">
+        <p>« Grâce au tutorat de l'AEPeS, j'ai réussi ma première année sans difficulté. »</p>
+        <div class="testi-author"><div class="testi-avatar"></div><div><div class="testi-name">Fatimata S.</div><div class="testi-role">Étudiante en économie</div></div></div>
+      </div>
+      <div class="testi">
+        <p>« L'association m'a permis de rester connecté à mes racines tout en avançant dans mes études. »</p>
+        <div class="testi-author"><div class="testi-avatar"></div><div><div class="testi-name">Ibrahima D.</div><div class="testi-role">Étudiant en droit</div></div></div>
+      </div>
+      <div class="testi">
+        <p>« L'incubateur de projets m'a aidé à lancer ma première petite entreprise. »</p>
+        <div class="testi-author"><div class="testi-avatar"></div><div><div class="testi-name">Aïssatou B.</div><div class="testi-role">Membre entrepreneure</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <h2>Galerie d'instants</h2>
+      <a href="galerie.html" class="btn btn-ghost">Voir toute la galerie →</a>
+    </div>
+    <div class="gallery-grid">
+      <div></div><div></div><div></div><div></div><div></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-soft">
+  <div class="container cta-duo">
+    <div class="cta-box dark" id="adhesion">
+      <h3>Rejoignez l'AEPeS</h3>
+      <p>Devenez membre et bénéficiez d'un accompagnement académique, culturel et professionnel.</p>
+      <a href="adhesion.html" class="btn">Adhérer en ligne</a>
+    </div>
+    <div class="cta-box light" id="dons">
+      <h3>Soutenez nos projets</h3>
+      <p>Chaque don contribue directement à l'éducation et au développement de nos membres.</p>
+      <a href="dons.html" class="btn">Faire un don</a>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</div>
+        <p style="font-size:14px;opacity:0.8;max-width:280px;">Association des Étudiants Peulhs du Sud — éducation, culture et cohésion sociale.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="equipe.html">Équipe dirigeante</a></li>
+          <li><a href="activites.html">Activités &amp; Projets</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="evenements.html">Événements</a></li>
+          <li><a href="galerie.html">Galerie médias</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ressources &amp; Accès</h4>
+        <ul>
+          <li><a href="bibliotheque.html">AEPeS Library</a></li>
+          <li><a href="partenariats.html">Partenariats</a></li>
+          <li><a href="adhesion.html">Adhésion en ligne</a></li>
+          <li><a href="dons.html">Faire un don</a></li>
+          <li><a href="connexion.html">Espace Membres</a></li>
+          <li><a href="admin.html">Administration</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="contact.html">Formulaire de contact</a></li>
+          <li>contact@aepes.org</li>
+          <li>+xxx xx xxx xxx</li>
+          <li>Campus universitaire, Sud</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AEPeS. Tous droits réservés.</span>
+      <span>Fait avec fierté pour la jeunesse peulhe.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faire un don — AEPeS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pages.css">
+<script src="site-sync.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js" defer></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+<div class="thread" aria-hidden="true"><svg viewBox="0 0 400 14" preserveAspectRatio="none"><path d="M0,7 Q10,0 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#1F5390" stroke-width="1.4"/><path d="M0,7 Q10,14 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#8FB8E6" stroke-width="1.4"/></svg></div>
+<header>
+  <nav>
+    <a href="index.html" class="logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</a>
+    <div class="nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="apropos.html">À propos</a>
+      <a href="equipe.html">Équipe</a>
+      <a href="activites.html">Activités</a>
+      <a href="actualites.html">Actualités</a>
+      <a href="evenements.html">Événements</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="bibliotheque.html">AEPeS Library</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="connexion.html" class="btn btn-member">Espace Membres</a>
+      <a href="adhesion.html" class="btn btn-ghost">Adhérer</a>
+      <a href="dons.html" class="btn btn-primary" style="background:var(--blue-700);border-color:var(--blue-700);">Faire un don</a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Accueil</a> / Dons</div>
+    <h1>Soutenir l'AEPeS</h1>
+    <p>Chaque contribution finance directement nos programmes d'éducation, de culture et d'entrepreneuriat au profit des étudiants.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="form-card">
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:10px;">Montant du don prédéfini (FCFA)</label>
+      <div class="amount-row">
+        <div class="amount-tile" data-amount="5000">5 000 F</div>
+        <div class="amount-tile active" data-amount="10000">10 000 F</div>
+        <div class="amount-tile" data-amount="25000">25 000 F</div>
+        <div class="amount-tile" data-amount="50000">50 000 F</div>
+      </div>
+      <div class="form-field" style="margin-bottom:20px;">
+        <label for="montant-custom">Ou entrez votre propre montant (FCFA)</label>
+        <input type="number" id="montant-custom" min="500" step="500" placeholder="Ex: 15 000" value="10000">
+      </div>
+      <label style="display:block;font-size:13px;font-weight:600;margin:22px 0 10px;">Moyen de paiement sécurisé</label>
+      <div class="pay-methods">
+        <div class="pay-tile active" data-moyen="Mobile Money (Orange / MTN)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Mobile Money (Orange / MTN)</div>
+        <div class="pay-tile" data-moyen="Carte bancaire (Visa / Mastercard)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Carte bancaire (Visa / Mastercard)</div>
+        <div class="pay-tile" data-moyen="Virement bancaire"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Virement bancaire</div>
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label for="don-nom">Nom ou Société</label><input type="text" id="don-nom" placeholder="Votre nom complet" required></div>
+        <div class="form-field"><label for="don-tel">Numéro de téléphone</label><input type="tel" id="don-tel" placeholder="+xxx xx xxx xxx" required></div>
+        <div class="form-field full"><label for="don-email">Adresse Email</label><input type="email" id="don-email" placeholder="vous@exemple.com (pour la réception du reçu fiscal)" required></div>
+      </div>
+      <button class="btn btn-primary form-submit" id="btn-don">Confirmer mon don en ligne</button>
+      <p class="form-note">Paiement 100% sécurisé. Un reçu de don numéroté sera généré et téléchargeable immédiatement.</p>
+    </div>
+  </div>
+</section>
+
+<footer id="contact-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</div>
+        <p style="font-size:14px;opacity:0.8;max-width:280px;">Association des Étudiants Peulhs du Sud — éducation, culture et cohésion sociale.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="equipe.html">Équipe dirigeante</a></li>
+          <li><a href="activites.html">Activités &amp; Projets</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="evenements.html">Événements</a></li>
+          <li><a href="galerie.html">Galerie médias</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ressources &amp; Accès</h4>
+        <ul>
+          <li><a href="bibliotheque.html">AEPeS Library</a></li>
+          <li><a href="partenariats.html">Partenariats</a></li>
+          <li><a href="adhesion.html">Adhésion en ligne</a></li>
+          <li><a href="dons.html">Faire un don</a></li>
+          <li><a href="connexion.html">Espace Membres</a></li>
+          <li><a href="admin.html">Administration</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="contact.html">Formulaire de contact</a></li>
+          <li>contact@aepes.org</li>
+          <li>+xxx xx xxx xxx</li>
+          <li>Campus universitaire, Sud</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AEPeS. Tous droits réservés.</span>
+      <span>Fait avec fierté pour la jeunesse peulhe.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

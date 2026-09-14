@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activités et projets — AEPeS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pages.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="site-sync.js" defer></script>
+<script src="supabase-client.js" defer></script>
+<script src="main.js" defer></script>
+</head>
+<body>
+<div class="thread" aria-hidden="true"><svg viewBox="0 0 400 14" preserveAspectRatio="none"><path d="M0,7 Q10,0 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#1F5390" stroke-width="1.4"/><path d="M0,7 Q10,14 20,7 T40,7 T60,7 T80,7 T100,7 T120,7 T140,7 T160,7 T180,7 T200,7 T220,7 T240,7 T260,7 T280,7 T300,7 T320,7 T340,7 T360,7 T380,7 T400,7" fill="none" stroke="#8FB8E6" stroke-width="1.4"/></svg></div>
+<header>
+  <nav>
+    <a href="index.html" class="logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</a>
+    <div class="nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="apropos.html">À propos</a>
+      <a href="equipe.html">Équipe</a>
+      <a href="activites.html" class="active">Activités</a>
+      <a href="actualites.html">Actualités</a>
+      <a href="evenements.html">Événements</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="bibliotheque.html">AEPeS Library</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="connexion.html" class="btn btn-member">Espace Membres</a>
+      <a href="adhesion.html" class="btn btn-ghost">Adhérer</a>
+      <a href="dons.html" class="btn btn-primary">Faire un don</a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Accueil</a> / Activités et projets</div>
+    <h1>Nos activités et projets</h1>
+    <p>Éducation, sensibilisation, formation, culture, entrepreneuriat et développement communautaire.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active">Tous</div>
+      <div class="tab">Éducation</div>
+      <div class="tab">Sensibilisation</div>
+      <div class="tab">Formation</div>
+      <div class="tab">Culture</div>
+      <div class="tab">Entrepreneuriat</div>
+      <div class="tab">Développement communautaire</div>
+    </div>
+
+    <div class="project-wide">
+      <div class="card-media"><span class="card-tag">Éducation</span></div>
+      <div class="project-info">
+        <h3 style="font-size:22px;margin-bottom:10px;">Programme de tutorat universitaire</h3>
+        <p style="color:var(--ink-soft);font-size:14.5px;">Des étudiants seniors accompagnent les nouveaux bacheliers pendant leur première année, avec un suivi personnalisé et des séances hebdomadaires.</p>
+        <div class="project-meta">
+          <div><span>Objectif</span><strong>300 bénéficiaires</strong></div>
+          <div><span>Budget</span><strong>2 400 000 FCFA</strong></div>
+          <div><span>Résultat</span><strong>92% de réussite</strong></div>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:14px;flex-wrap:wrap;">
+          <a href="bibliotheque.html" class="card-link">Accéder aux supports de cours →</a>
+          <a href="galerie.html" class="card-link" style="color:var(--blue-700);">Voir les photos →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-wide">
+      <div class="card-media"><span class="card-tag">Culture</span></div>
+      <div class="project-info">
+        <h3 style="font-size:22px;margin-bottom:10px;">Semaine culturelle peulhe</h3>
+        <p style="color:var(--ink-soft);font-size:14.5px;">Un événement annuel célébrant la langue fulfuldé, la musique, la danse et l'artisanat peulhs, ouvert à toute la communauté universitaire.</p>
+        <div class="project-meta">
+          <div><span>Édition</span><strong>8e édition</strong></div>
+          <div><span>Budget</span><strong>1 800 000 FCFA</strong></div>
+          <div><span>Participants</span><strong>600+</strong></div>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:14px;flex-wrap:wrap;">
+          <a href="galerie.html" class="card-link">Voir la galerie photo de l'événement →</a>
+          <a href="evenements.html" class="card-link" style="color:var(--blue-700);">Prochaine édition →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-wide">
+      <div class="card-media"><span class="card-tag">Entrepreneuriat</span></div>
+      <div class="project-info">
+        <h3 style="font-size:22px;margin-bottom:10px;">Incubateur de projets jeunes</h3>
+        <p style="color:var(--ink-soft);font-size:14.5px;">Formations en gestion d'entreprise et micro-financements pour accompagner les premières initiatives entrepreneuriales des membres.</p>
+        <div class="project-meta">
+          <div><span>Promotion</span><strong>25 porteurs de projet</strong></div>
+          <div><span>Budget</span><strong>5 000 000 FCFA</strong></div>
+          <div><span>Résultat</span><strong>9 entreprises lancées</strong></div>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:14px;flex-wrap:wrap;">
+          <a href="partenariats.html" class="card-link">Découvrir nos partenaires →</a>
+          <a href="actualites.html" class="card-link" style="color:var(--blue-700);">Lire les retours d'expérience →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="logo.jpg" class="logo-img" alt="Logo AEPeS"> AEPeS</div>
+        <p style="font-size:14px;opacity:0.8;max-width:280px;">Association des Étudiants Peulhs du Sud — éducation, culture et cohésion sociale.</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="equipe.html">Équipe dirigeante</a></li>
+          <li><a href="activites.html">Activités &amp; Projets</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="evenements.html">Événements</a></li>
+          <li><a href="galerie.html">Galerie médias</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ressources &amp; Accès</h4>
+        <ul>
+          <li><a href="bibliotheque.html">AEPeS Library</a></li>
+          <li><a href="partenariats.html">Partenariats</a></li>
+          <li><a href="adhesion.html">Adhésion en ligne</a></li>
+          <li><a href="dons.html">Faire un don</a></li>
+          <li><a href="connexion.html">Espace Membres</a></li>
+          <li><a href="admin.html">Administration</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="contact.html">Formulaire de contact</a></li>
+          <li>contact@aepes.org</li>
+          <li>+xxx xx xxx xxx</li>
+          <li>Campus universitaire, Sud</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AEPeS. Tous droits réservés.</span>
+      <span>Fait avec fierté pour la jeunesse peulhe.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
